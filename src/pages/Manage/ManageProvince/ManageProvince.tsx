@@ -1,5 +1,4 @@
 import { getProvinceAdmin } from '@/apis/address.api'
-import ExportCustom from '@/components/dev/ExportCustom'
 import Paginate from '@/components/dev/PaginationCustom'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -25,15 +24,12 @@ export default function ManageProvince() {
           <h1 className='font-semibold text-lg'>Tỉnh/Thành phố</h1>
           <p className='text-sm italic'>Quản lý Tỉnh/Thành phố</p>
         </div>
-        <div className='flex items-center space-x-2'>
-          <DialogProvince>
-            <Button>
-              <PlusIcon />
-              <span>Thêm Tỉnh/Thành phố</span>
-            </Button>
-          </DialogProvince>
-          <ExportCustom dataType='province' queryConfig={provinceQueryConfig} />
-        </div>
+        <DialogProvince>
+          <Button>
+            <PlusIcon />
+            <span>Thêm Tỉnh/Thành phố</span>
+          </Button>
+        </DialogProvince>
       </div>
       <Separator />
       <div>

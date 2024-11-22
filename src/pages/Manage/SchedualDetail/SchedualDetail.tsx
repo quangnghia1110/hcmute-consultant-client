@@ -9,19 +9,15 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { Separator } from '@/components/ui/separator'
-import path from '@/constants/path'
-import { toast } from '@/hooks/use-toast'
 import { SchedualConfirm } from '@/types/consultant.type'
 import { FormControlItem } from '@/types/utils.type'
 import { SchedualConfirmSchema } from '@/utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { format } from 'date-fns'
-import { omitBy } from 'lodash'
 import { EllipsisVertical, ReplyIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate, useParams } from 'react-router-dom'
+import {  useParams } from 'react-router-dom'
 import * as yup from 'yup'
 
 const statusPublicSelectionData: FormControlItem[] = [
@@ -73,7 +69,6 @@ const getTextOfBoolean = (value: boolean) => {
 
 export default function SchedualDetail() {
   const { id } = useParams()
-  const navigate = useNavigate()
   const formReset = useRef<boolean>(false)
   const form = useForm<FormData>({
     defaultValues: {
@@ -111,33 +106,8 @@ export default function SchedualDetail() {
 
   const onSubmit = form.handleSubmit((values) => {
     values.content = `<div class="editor">${values.content}</div>`
-    const body: SchedualConfirm = omitBy(
-      {
-        title: values.title,
-        content: values.content,
-        consultationDate: format(String(date), 'yyyy-MM-dd'),
-        consultationTime: time ?? '00:00',
-        link: values.link ?? '',
-        location: values.location ?? '',
-        mode: getBoolean(values.mode),
-        statusConfirmed: getBoolean(values.statusConfirmed),
-        statusPublic: getBoolean(values.statusPublic)
-      },
-      (value) => value === ''
-    )
-    const scheduleId = schedule?.id as number
-    confirmSchedualMutation.mutate(
-      { body, scheduleId },
-      {
-        onSuccess: (res) => {
-          toast({
-            variant: 'success',
-            description: res.data.message
-          })
-          navigate(path.manageSchedule)
-        }
-      }
-    )
+    
+    
   })
 
   useEffect(() => {

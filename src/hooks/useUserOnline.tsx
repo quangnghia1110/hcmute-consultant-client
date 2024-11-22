@@ -20,13 +20,13 @@ export default function useUserOnline() {
     }
   }
 
-  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onError = (err: any) => {
     console.log('Lỗi kết nối WebSocket:', err)
   }
 
   const connect = () => {
-    const Sock = new SockJS('https://nam4hocky1tlcn-production.up.railway.app/ws')
+    const Sock = new SockJS('http://localhost:8080/ws')
     stompClient.current = over(Sock)
 
     const accessToken = localStorage.getItem('accessToken')

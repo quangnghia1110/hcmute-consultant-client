@@ -32,8 +32,6 @@ const path = {
   manageField: '/manage/fields',
   manageDepartment: '/manage/departments',
   manageUser: '/manage/users',
-  manageApprovalAnswer: '/manage/approval-answers',
-  approvalQuestionDetail: '/manage/approval-answers/detail/:id',
   questionDetail: '/manage/questions/detail/:id',
   schedualDetail: '/manage/schedules/detail/:id',
   postDetail: '/manage/posts/detail/:id',

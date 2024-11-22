@@ -1,5 +1,4 @@
 import { getAdminConsultantRole } from '@/apis/role.api'
-import ExportCustom from '@/components/dev/ExportCustom'
 import InputCustom from '@/components/dev/Form/InputCustom'
 import Paginate from '@/components/dev/PaginationCustom/PaginationCustom'
 import { Button } from '@/components/ui/button'
@@ -51,7 +50,6 @@ export default function ManageConsultantRole() {
             <span>Thêm quyền</span>
           </Button>
         </DialogRole> */}
-        <ExportCustom dataType='roleConsultant' queryConfig={consultantRoleQueryConfig} />
       </div>
       <div>
         <Form {...form}>

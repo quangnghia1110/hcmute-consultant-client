@@ -140,7 +140,7 @@ export default function UserDashBoard() {
           year={year}
           label={selectedType?.label as string}
           getData={
-            
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             selectedType?.getData as (year: number) => Promise<AxiosResponse<SuccessResponse<ChartStatistics[]>, any>>
           }
           keyFn={selectedType?.keyFn as string}

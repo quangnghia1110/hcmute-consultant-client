@@ -18,7 +18,6 @@ export default function QuestionLibrary() {
             <div className='space-y-8'>
               {commonQuestions?.data.data?.content.map((question) => (
                 <div
-                  key={question.id}
                   className=' p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border'
                 >
                   <h2 className='font-semibold text-xl text-indigo-600 mb-4'>{question.content}</h2>

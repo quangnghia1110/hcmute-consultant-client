@@ -1,5 +1,4 @@
 import { getPosts } from '@/apis/post.api'
-import ExportCustom from '@/components/dev/ExportCustom'
 import Paginate from '@/components/dev/PaginationCustom'
 import PostItem from '@/components/dev/PostItem'
 import { Separator } from '@/components/ui/separator'
@@ -22,9 +21,7 @@ export default function ManagePost() {
           <h1 className='font-semibold text-lg'>Bài đăng</h1>
           <p className='text-sm italic'>Quản lý bài đăng</p>
         </div>
-        <div className='flex items-center space-x-2'>
-          <DialogAddPost /> <ExportCustom dataType='post' queryConfig={postQueryConfig} />
-        </div>
+        <DialogAddPost />
       </div>
       <Separator className='my-2' />
       <div className='bg-background'>

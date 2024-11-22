@@ -1,154 +1,126 @@
-import { answerTheQuestion, approvalAnswer, getDeleteLog, getQuestionById } from '@/apis/question.api';
-import AvatarCustom from '@/components/dev/AvatarCustom';
-import FileItem from '@/components/dev/FileItem';
-import Editor from '@/components/dev/Form/Editor';
-import QuestionImage from '@/components/dev/QuestionImage';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Form } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import path from '@/constants/path';
-import { AppContext } from '@/contexts/app.context';
-import { toast } from '@/hooks/use-toast';
-import useQueryParams from '@/hooks/useQueryParams';
-import DialogDeleteQuestion from '@/pages/Manage/QuestionDetail/components/DialogDeleteQuestion';
-import DialogForwardQuestion from '@/pages/Manage/QuestionDetail/components/DialogForwardQuestion';
-import DialogUpdateAnswer from '@/pages/Manage/QuestionDetail/components/DialogUpdateAnswer';
-import { Answer } from '@/types/question.type';
-import { formatDate, isImageFile } from '@/utils/utils';
-import { TrashIcon } from '@radix-ui/react-icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import clsx from 'clsx';
-import { AlertTriangleIcon, EllipsisIcon, EllipsisVertical, ReplyIcon } from 'lucide-react';
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { answerTheQuestion, getDeleteLog, getQuestionById } from '@/apis/question.api'
+import AvatarCustom from '@/components/dev/AvatarCustom'
+import FileItem from '@/components/dev/FileItem'
+import Editor from '@/components/dev/Form/Editor'
+import QuestionImage from '@/components/dev/QuestionImage'
+import { Button } from '@/components/ui/button'
+import { Form } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import path from '@/constants/path'
+import { AppContext } from '@/contexts/app.context'
+import { toast } from '@/hooks/use-toast'
+import DialogDeleteQuestion from '@/pages/Manage/QuestionDetail/components/DialogDeleteQuestion'
+import DialogForwardQuestion from '@/pages/Manage/QuestionDetail/components/DialogForwardQuestion'
+import { Answer } from '@/types/question.type'
+import { formatDate, isImageFile } from '@/utils/utils'
+import { TrashIcon } from '@radix-ui/react-icons'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import clsx from 'clsx'
+import { AlertTriangleIcon, EllipsisVertical, ReplyIcon } from 'lucide-react'
+import { useContext, useEffect, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate, useParams } from 'react-router-dom'
 
 export default function QuestionDetail() {
-  const { user } = useContext(AppContext);
-  const { id } = useParams();
-  const { status } = useQueryParams();
-  const isApproval = status === 'APPROVAL';
-  const navigate = useNavigate();
+  const { user } = useContext(AppContext)
+  const { id } = useParams()
+  const navigate = useNavigate()
 
-  const [showToAnswer, setShowToAnswer] = useState<boolean>(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [showToAnswer, setShowToAnswer] = useState<boolean>(false)
+  const [file, setFile] = useState<File>()
+  const previewImage = useMemo(() => {
+    return file ? URL.createObjectURL(file) : ''
+  }, [file])
 
   const { data: questionResponse } = useQuery({
     queryKey: ['question', id],
-    queryFn: () => getQuestionById(Number(id)),
-    enabled: !!id,
-  });
-  const question = questionResponse?.data.data;
-
-  const previewImage = useMemo(() => {
-    if (file) return URL.createObjectURL(file);
-    if (isApproval) return question?.fileName ?? '';
-    return '';
-  }, [file, question, isApproval]);
+    queryFn: () => getQuestionById(parseInt(id as string)),
+    enabled: !!id
+  })
+  const question = questionResponse?.data.data
 
   const answerMutation = useMutation({
-    mutationFn: ({ params, file }: { params: Answer; file?: File }) => answerTheQuestion(params, file),
-  });
-
-  const approvalAnswerMutation = useMutation({
-    mutationFn: ({ questionId, content, file }: { questionId: number; content: string; file?: File }) =>
-      approvalAnswer(questionId, content, file),
-  });
+    mutationFn: ({ params, file }: { params: Answer; file: File }) => answerTheQuestion(params, file)
+  })
 
   const { data: deleteLog } = useQuery({
     queryKey: ['deletion-log', id],
-    queryFn: () => getDeleteLog(Number(id)),
-    enabled: !!id,
-  });
+    queryFn: () => getDeleteLog(parseInt(id as string)),
+    enabled: !!id
+  })
 
   const form = useForm({
     defaultValues: {
-      content: isApproval ? question?.answerContent : '',
-    },
-  });
+      content: ''
+    }
+  })
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileFromLocal = event.target.files?.[0] ?? null;
-    setFile(fileFromLocal);
-  };
+    const fileFromLocal = event.target.files?.[0]
+    setFile(fileFromLocal)
+  }
 
   const handleOpenToAnswer = () => {
-    setShowToAnswer(true);
-  };
+    setShowToAnswer(true)
+  }
 
   const onSubmit = form.handleSubmit((values) => {
-    const content = `<div class="editor">${values.content}</div>`;
+    if (!question || !values.content || !file) return
+    values.content = `<div class="editor">${values.content}</div>`
+    const params: Answer = {
+      questionId: question?.id,
+      content: values.content,
+      title: 'answer',
+      statusApproval: false
+    }
+    answerMutation.mutate(
+      { params, file },
+      {
+        onSuccess: (res) => {
+          toast({
+            variant: 'success',
+            description: res.data.message
+          })
+          navigate(path.manageQuestion)
+        }
+      }
+    )
+  })
 
-    if (!isApproval) {
+  const onSubmitWithStatus = () => {
+    form.handleSubmit((values) => {
+      if (!question || !values.content || !file) return
+      values.content = `<div class="editor">${values.content}</div>`
       const params: Answer = {
-        questionId: question?.id as number,
-        content,
+        questionId: question?.id,
+        content: values.content,
         title: 'answer',
-        statusApproval: false,
-      };
-
+        statusApproval: true
+      }
       answerMutation.mutate(
         { params, file },
         {
           onSuccess: (res) => {
-            toast({ variant: 'success', description: res.data.message });
-            navigate(path.manageQuestion);
-          },
+            toast({
+              variant: 'success',
+              description: res.data.message
+            })
+            navigate(path.manageQuestion)
+          }
         }
-      );
-      return;
-    }
-
-    const payload = {
-      questionId: question?.id as number,
-      content,
-      file: file ?? undefined,
-    };
-
-    approvalAnswerMutation.mutate(payload, {
-      onSuccess: (res) => {
-        toast({ variant: 'success', description: res.data.message });
-        navigate(path.manageApprovalAnswer);
-      },
-    });
-  });
-
-  const onSubmitWithStatus = () => {
-    form.handleSubmit((values) => {
-      if (!question || !values.content) return;
-
-      const params: Answer = {
-        questionId: question.id,
-        content: `<div class="editor">${values.content}</div>`,
-        title: 'answer',
-        statusApproval: true,
-      };
-
-      answerMutation.mutate(
-        { params, file: file ?? undefined },
-        {
-          onSuccess: (res) => {
-            toast({ variant: 'success', description: res.data.message });
-            navigate(path.manageQuestion);
-          },
-        }
-      );
-    })();
-  };
-
-  useEffect(() => {
-    if (isApproval && !form.watch('content') && question) {
-      form.setValue('content', question.answerContent ?? '');
-    }
-  }, [question, isApproval]);
+      )
+    })()
+  }
 
   useEffect(() => {
     if (showToAnswer) {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      })
     }
-  }, [showToAnswer]);
+  }, [showToAnswer])
 
   return (
     <div>
@@ -210,28 +182,11 @@ export default function QuestionDetail() {
         <div className='flex w-full max-w-full mt-3'>
           <AvatarCustom url={question.answerAvatarUrl} className='size-8 mr-2' />
           <div className='flex-1'>
-            <div className='flex items-center space-x-1'>
-              <div className='flex-1 rounded-2xl bg-secondary text-secondary-foreground px-4 py-2'>
-                <div className='font-bold text-sm'>
-                  {question.answerUserLastname} {question.answerUserFirstname}
-                </div>
-                <div dangerouslySetInnerHTML={{ __html: question.answerContent }} className='text-sm'></div>
+            <div className='rounded-2xl bg-secondary text-secondary-foreground px-4 py-2'>
+              <div className='font-bold text-sm'>
+                {question.answerUserLastname} {question.answerUserFirstname}
               </div>
-              <div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <EllipsisIcon className='size-4' />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className='px-2'>
-                    <DialogUpdateAnswer question={question}>
-                      <span className='font-semibold text-sm'>Chỉnh sửa</span>
-                    </DialogUpdateAnswer>
-                    <DropdownMenuItem>
-                      <span className='text-destructive font-semibold cursor-pointer'>Xóa</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <div dangerouslySetInnerHTML={{ __html: question.answerContent }} className='text-sm'></div>
             </div>
             <div className='text-[10px] ml-4'>{formatDate(question.answerCreatedAt)}</div>
           </div>
@@ -244,8 +199,8 @@ export default function QuestionDetail() {
         })}
       >
         <div className='space-x-2'>
-          <Button onClick={handleOpenToAnswer}>{isApproval ? 'Đánh giá' : 'Phản hồi'}</Button>
-          {!isApproval && <DialogForwardQuestion questionId={question?.id as number} />}
+          <Button onClick={handleOpenToAnswer}>Phản hồi</Button>
+          <DialogForwardQuestion questionId={question?.id as number} />
         </div>
         <DialogDeleteQuestion questionId={parseInt(id as string)} />
       </div>
@@ -267,23 +222,18 @@ export default function QuestionDetail() {
                 </div>
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center space-x-2'>
-                    <Button
-                      isLoading={answerMutation.isPending || approvalAnswerMutation.isPending}
-                      disabled={answerMutation.isPending || approvalAnswerMutation.isPending}
-                    >
-                      {!isApproval ? 'Gửi' : 'Phê duyệt'}
+                    <Button isLoading={answerMutation.isPending} disabled={answerMutation.isPending}>
+                      Gửi
                     </Button>
-                    {!isApproval && (
-                      <Button
-                        type='button'
-                        variant='secondary'
-                        isLoading={answerMutation.isPending}
-                        disabled={answerMutation.isPending}
-                        onClick={onSubmitWithStatus}
-                      >
-                        Preview
-                      </Button>
-                    )}
+                    <Button
+                      type='button'
+                      variant='secondary'
+                      isLoading={answerMutation.isPending}
+                      disabled={answerMutation.isPending}
+                      onClick={onSubmitWithStatus}
+                    >
+                      Preview
+                    </Button>
                   </div>
                   <div aria-hidden='true' onClick={() => setShowToAnswer(false)} className='cursor-pointer'>
                     <TrashIcon className='size-5' />

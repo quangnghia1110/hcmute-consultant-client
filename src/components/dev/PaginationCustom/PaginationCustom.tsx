@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 interface Props {
   readonly path: string
   readonly pageSize: number
-  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly queryConfig: any
   readonly RANGE?: number
   readonly showChooseQuantity?: boolean

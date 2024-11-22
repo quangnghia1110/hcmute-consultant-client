@@ -8,7 +8,6 @@ import UserPopover from '@/components/dev/Header/components/UserPopover/UserPopo
 import path from '@/constants/path'
 import registerStatus from '@/constants/registerStatus'
 import { AppContext } from '@/contexts/app.context'
-import HeaderMessage from '@/components/dev/Header/components/HeaderMessage'
 import { ModeToggle } from '@/components/dev/ModeToggle/ModeToggle'
 import ConsultantPopover from '@/components/dev/Header/components/ConsultantPopover'
 import { ROLE } from '@/constants/role'
@@ -50,7 +49,7 @@ export default function Header() {
         {isAuthenticated && (
           <div className='flex items-center'>
             <HeaderNotification />
-            <HeaderMessage />
+            {/* <HeaderMessage /> */}
             <ModeToggle />
             {role === ROLE.user && <UserPopover />}
             {[ROLE.consultant, ROLE.admin, ROLE.advisor].includes(role as Role) && <ConsultantPopover />}

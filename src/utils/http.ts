@@ -21,7 +21,7 @@ class HTTP {
 
   constructor() {
     this.instance = axios.create({
-      baseURL: 'https://nam4hocky1tlcn-production.up.railway.app/api/v1/',
+      baseURL: 'http://localhost:8080/api/v1/',
       timeout: 100000
     })
 
@@ -55,7 +55,7 @@ class HTTP {
         return response
       },
       (error: AxiosError) => {
-        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data: any | undefined = error.response?.data
         if (
           ![HttpStatusCode.Unauthorized, HttpStatusCode.UnprocessableEntity].includes(

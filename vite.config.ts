@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 
-// https://vitejs.dev/config/
 export default defineConfig({
+  base: '/hcmute-consultant-client/', // Thay bằng tên repository của bạn
   plugins: [
     react(),
     NodeGlobalsPolyfillPlugin({

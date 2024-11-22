@@ -1,4 +1,4 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Question } from '@/types/question.type'
 import { ColumnDef } from '@tanstack/react-table'
 import { EllipsisIcon } from 'lucide-react'
@@ -43,8 +43,7 @@ export const colums: ColumnDef<Question>[] = [
   {
     accessorKey: 'action',
     header: 'Hành động',
-    cell: ({ row }) => {
-      const question = row.original as Question
+    cell: ({  }) => {
 
       return (
         <div className='capitalize font-semibold'>

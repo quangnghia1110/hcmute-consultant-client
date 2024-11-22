@@ -1,5 +1,4 @@
 import { getAdminUser } from '@/apis/user.api'
-import ExportCustom from '@/components/dev/ExportCustom'
 import Paginate from '@/components/dev/PaginationCustom'
 import { Form } from '@/components/ui/form'
 import path from '@/constants/path'
@@ -38,11 +37,12 @@ export default function ManageUser() {
             <span>Thêm quyền</span>
           </Button>
         </DialogRole> */}
-        <ExportCustom dataType='userInformation' queryConfig={userQueryConfig} />
       </div>
       <div>
         <Form {...form}>
-          <form></form>
+          <form>
+            
+          </form>
         </Form>
       </div>
       <div>
