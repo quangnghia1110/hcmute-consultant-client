@@ -55,7 +55,7 @@ class HTTP {
         return response
       },
       (error: AxiosError) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        
         const data: any | undefined = error.response?.data
         if (
           ![HttpStatusCode.Unauthorized, HttpStatusCode.UnprocessableEntity].includes(

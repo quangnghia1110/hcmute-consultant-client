@@ -169,7 +169,6 @@ export const QuestionCircle = ({ className }: Props) => {
 }
 
 export const BellIcon = ({ className }: Props) => {
-  const classNames = className ?? 'size-4'
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'

@@ -66,7 +66,7 @@ export default function Chat({ conversation }: Props) {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   const onError = (err: any) => {
     console.log(err)
   }

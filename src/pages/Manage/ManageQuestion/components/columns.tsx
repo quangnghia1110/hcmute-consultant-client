@@ -1,5 +1,4 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import DialogAnswerQuestion from '@/pages/Consultant/ManageQuestion/components/DialogAnswerQuestion'
 import { Question } from '@/types/question.type'
 import { ColumnDef } from '@tanstack/react-table'
 import { EllipsisIcon } from 'lucide-react'
@@ -53,9 +52,7 @@ export const colums: ColumnDef<Question>[] = [
             <DropdownMenuTrigger>
               <EllipsisIcon />
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DialogAnswerQuestion question={question} />
-            </DropdownMenuContent>
+            
           </DropdownMenu>
         </div>
       )

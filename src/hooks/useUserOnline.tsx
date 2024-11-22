@@ -20,7 +20,7 @@ export default function useUserOnline() {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   const onError = (err: any) => {
     console.log('Lỗi kết nối WebSocket:', err)
   }

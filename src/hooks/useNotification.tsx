@@ -14,7 +14,7 @@ const useNotification = () => {
   const { user } = useContext(AppContext)
   const stompClient = useRef<Client | null>(null)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   const onPrivateNotification = (payload: any) => {
     queryClient.refetchQueries({
       queryKey: ['notifications']
@@ -33,7 +33,7 @@ const useNotification = () => {
     stompClient.current?.subscribe('/user/' + user?.id + '/notification', onPrivateNotification)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   const onError = (err: any) => {
     console.log(err)
   }

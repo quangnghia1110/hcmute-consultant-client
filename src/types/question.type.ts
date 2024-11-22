@@ -27,6 +27,7 @@ export interface Question {
 }
 
 export interface CommonQuestion {
+  id: string
   commonQuestionId: number
   department: Department
   field: Field
