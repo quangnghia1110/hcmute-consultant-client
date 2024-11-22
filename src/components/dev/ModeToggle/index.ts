@@ -1,1 +1,1 @@
-export { default } from './ModeToggle'
+export const ModeToggle = () => {}

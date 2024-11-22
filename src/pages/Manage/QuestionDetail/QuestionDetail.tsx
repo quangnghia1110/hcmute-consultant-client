@@ -1,160 +1,154 @@
-import { answerTheQuestion, approvalAnswer, getDeleteLog, getQuestionById } from '@/apis/question.api'
-import AvatarCustom from '@/components/dev/AvatarCustom'
-import FileItem from '@/components/dev/FileItem'
-import Editor from '@/components/dev/Form/Editor'
-import QuestionImage from '@/components/dev/QuestionImage'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Form } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import path from '@/constants/path'
-import { AppContext } from '@/contexts/app.context'
-import { toast } from '@/hooks/use-toast'
-import useQueryParams from '@/hooks/useQueryParams'
-import DialogDeleteQuestion from '@/pages/Manage/QuestionDetail/components/DialogDeleteQuestion'
-import DialogForwardQuestion from '@/pages/Manage/QuestionDetail/components/DialogForwardQuestion'
-import DialogUpdateAnswer from '@/pages/Manage/QuestionDetail/components/DialogUpdateAnswer'
-import { Answer } from '@/types/question.type'
-import { formatDate, isImageFile } from '@/utils/utils'
-import { TrashIcon } from '@radix-ui/react-icons'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import clsx from 'clsx'
-import { AlertTriangleIcon, EllipsisIcon, EllipsisVertical, ReplyIcon } from 'lucide-react'
-import { useContext, useEffect, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { useNavigate, useParams } from 'react-router-dom'
+import { answerTheQuestion, approvalAnswer, getDeleteLog, getQuestionById } from '@/apis/question.api';
+import AvatarCustom from '@/components/dev/AvatarCustom';
+import FileItem from '@/components/dev/FileItem';
+import Editor from '@/components/dev/Form/Editor';
+import QuestionImage from '@/components/dev/QuestionImage';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Form } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import path from '@/constants/path';
+import { AppContext } from '@/contexts/app.context';
+import { toast } from '@/hooks/use-toast';
+import useQueryParams from '@/hooks/useQueryParams';
+import DialogDeleteQuestion from '@/pages/Manage/QuestionDetail/components/DialogDeleteQuestion';
+import DialogForwardQuestion from '@/pages/Manage/QuestionDetail/components/DialogForwardQuestion';
+import DialogUpdateAnswer from '@/pages/Manage/QuestionDetail/components/DialogUpdateAnswer';
+import { Answer } from '@/types/question.type';
+import { formatDate, isImageFile } from '@/utils/utils';
+import { TrashIcon } from '@radix-ui/react-icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import clsx from 'clsx';
+import { AlertTriangleIcon, EllipsisIcon, EllipsisVertical, ReplyIcon } from 'lucide-react';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function QuestionDetail() {
-  const { user } = useContext(AppContext)
-  const { id } = useParams()
-  const { status } = useQueryParams()
-  const isApproval = status === 'APPROVAL'
-  const navigate = useNavigate()
+  const { user } = useContext(AppContext);
+  const { id } = useParams();
+  const { status } = useQueryParams();
+  const isApproval = status === 'APPROVAL';
+  const navigate = useNavigate();
 
-  const [showToAnswer, setShowToAnswer] = useState<boolean>(false)
-  const [file, setFile] = useState<File>()
+  const [showToAnswer, setShowToAnswer] = useState<boolean>(false);
+  const [file, setFile] = useState<File | null>(null);
 
   const { data: questionResponse } = useQuery({
     queryKey: ['question', id],
-    queryFn: () => getQuestionById(parseInt(id as string)),
-    enabled: !!id
-  })
-  const question = questionResponse?.data.data
+    queryFn: () => getQuestionById(Number(id)),
+    enabled: !!id,
+  });
+  const question = questionResponse?.data.data;
 
   const previewImage = useMemo(() => {
-    return file ? URL.createObjectURL(file) : isApproval ? question?.fileName : ''
-  }, [file, question])
+    if (file) return URL.createObjectURL(file);
+    if (isApproval) return question?.fileName ?? '';
+    return '';
+  }, [file, question, isApproval]);
 
   const answerMutation = useMutation({
-    mutationFn: ({ params, file }: { params: Answer; file: File }) => answerTheQuestion(params, file)
-  })
+    mutationFn: ({ params, file }: { params: Answer; file?: File }) => answerTheQuestion(params, file),
+  });
 
   const approvalAnswerMutation = useMutation({
-    mutationFn: ({ questionId, content, file }: { questionId: number; content: string; file: File }) =>
-      approvalAnswer(questionId, content, file)
-  })
+    mutationFn: ({ questionId, content, file }: { questionId: number; content: string; file?: File }) =>
+      approvalAnswer(questionId, content, file),
+  });
 
   const { data: deleteLog } = useQuery({
     queryKey: ['deletion-log', id],
-    queryFn: () => getDeleteLog(parseInt(id as string)),
-    enabled: !!id
-  })
+    queryFn: () => getDeleteLog(Number(id)),
+    enabled: !!id,
+  });
 
   const form = useForm({
     defaultValues: {
-      content: isApproval ? question?.answerContent : ''
-    }
-  })
+      content: isApproval ? question?.answerContent : '',
+    },
+  });
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileFromLocal = event.target.files?.[0]
-    setFile(fileFromLocal)
-  }
+    const fileFromLocal = event.target.files?.[0] ?? null;
+    setFile(fileFromLocal);
+  };
 
   const handleOpenToAnswer = () => {
-    setShowToAnswer(true)
-  }
+    setShowToAnswer(true);
+  };
 
   const onSubmit = form.handleSubmit((values) => {
+    const content = `<div class="editor">${values.content}</div>`;
+
     if (!isApproval) {
-      values.content = `<div class="editor">${values.content}</div>`
       const params: Answer = {
         questionId: question?.id as number,
-        content: values.content,
+        content,
         title: 'answer',
-        statusApproval: false
-      }
+        statusApproval: false,
+      };
+
       answerMutation.mutate(
         { params, file },
         {
           onSuccess: (res) => {
-            toast({
-              variant: 'success',
-              description: res.data.message
-            })
-            navigate(path.manageQuestion)
-          }
+            toast({ variant: 'success', description: res.data.message });
+            navigate(path.manageQuestion);
+          },
         }
-      )
-      return
+      );
+      return;
     }
+
     const payload = {
       questionId: question?.id as number,
-      content: values.content,
-      file
-    }
+      content,
+      file: file ?? undefined,
+    };
+
     approvalAnswerMutation.mutate(payload, {
       onSuccess: (res) => {
-        toast({
-          variant: 'success',
-          description: res.data.message
-        })
-        navigate(path.manageApprovalAnswer)
-      }
-    })
-  })
+        toast({ variant: 'success', description: res.data.message });
+        navigate(path.manageApprovalAnswer);
+      },
+    });
+  });
 
   const onSubmitWithStatus = () => {
     form.handleSubmit((values) => {
-      if (!question || !values.content || !file) return
-      values.content = `<div class="editor">${values.content}</div>`
+      if (!question || !values.content) return;
+
       const params: Answer = {
-        questionId: question?.id,
-        content: values.content,
+        questionId: question.id,
+        content: `<div class="editor">${values.content}</div>`,
         title: 'answer',
-        statusApproval: true
-      }
+        statusApproval: true,
+      };
+
       answerMutation.mutate(
-        { params, file },
+        { params, file: file ?? undefined },
         {
           onSuccess: (res) => {
-            toast({
-              variant: 'success',
-              description: res.data.message
-            })
-            navigate(path.manageQuestion)
-          }
+            toast({ variant: 'success', description: res.data.message });
+            navigate(path.manageQuestion);
+          },
         }
-      )
-    })()
-  }
+      );
+    })();
+  };
 
   useEffect(() => {
-    if (!isApproval) return
-    if (!form.watch('content') && question) {
-      form.setValue('content', question.answerContent)
+    if (isApproval && !form.watch('content') && question) {
+      form.setValue('content', question.answerContent ?? '');
     }
-  }, [question, isApproval])
+  }, [question, isApproval]);
 
   useEffect(() => {
     if (showToAnswer) {
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth'
-      })
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
-  }, [showToAnswer])
+  }, [showToAnswer]);
 
   return (
     <div>
