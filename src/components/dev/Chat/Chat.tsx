@@ -72,7 +72,7 @@ export default function Chat({ conversation }: Props) {
   }
 
   const connect = () => {
-    const Sock = new SockJS('http://localhost:8080/ws')
+    const Sock = new SockJS('https://nam4hocky1tlcn-production.up.railway.app/ws')
     stompClient.current = over(Sock)
 
     const accessToken = localStorage.getItem('accessToken')
