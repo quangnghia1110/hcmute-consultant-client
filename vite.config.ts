@@ -4,7 +4,6 @@ import path from 'path'
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 
 export default defineConfig({
-  base: '/hcmute-consultant-client/', // Thay bằng tên repository của bạn
   plugins: [
     react(),
     NodeGlobalsPolyfillPlugin({
